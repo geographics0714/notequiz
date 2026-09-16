@@ -15,6 +15,12 @@ twice per question: once to generate quiz questions from your notes, and
 once to grade your typed answer against those notes — all inference happens
 on-device.
 
+Grading asks the model for a one-sentence plain-language judgment rather
+than a literal "CORRECT"/"INCORRECT" token — at this model size, forcing
+that exact token turned out to bias the model toward always answering
+"CORRECT" regardless of context. Asking for prose and classifying it
+locally (`app.js`, see `classify()`) was far more reliable in testing.
+
 ## SDK version
 
 Built and tested with `@qvac/sdk` `0.19.1`.
@@ -60,10 +66,9 @@ Model loaded.
 
 Quiz time! 5 question(s), answer in your own words.
 
-Q1: What is the mitochondria responsible for producing?
-Your answer: ATP
-✅ CORRECT
-The student correctly identified that the mitochondria produces ATP through cellular respiration.
+Q1: What is the organelle responsible for producing ATP through cellular respiration?
+Your answer: the mitochondria
+✅ CORRECT — The student answer correctly identifies the mitochondria as the organelle responsible for producing ATP through cellular respiration.
 
 ...
 
