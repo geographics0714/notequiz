@@ -46,12 +46,27 @@ const GRADE_SYSTEM_PROMPT =
   'an off-topic answer, or one that contradicts the notes is wrong. Do not use the words CORRECT ' +
   'or INCORRECT in your sentence — describe the judgment in plain language instead.';
 
-const NEGATIVE_CUES = /\bincorrectly?\b|does ?n[o']?t\s+address|doesn'?t\s+address|fails?\s+to\s+address|\boff-?topic\b|\bcontradicts?\b|\binaccurate\b/i;
-const POSITIVE_CUES = /\bcorrectly?\b|\baccurately\b|\bmatches\b/i;
+// Judgment words the model tends to use, and the negators that can precede them
+// and flip their polarity (e.g. "does NOT accurately describe" is a negative
+// verdict even though it contains "accurately"; "does NOT contradict" is a
+// positive verdict even though it contains "contradict"). A bare keyword match
+// with no negation check is not enough — it gets fooled by exactly this.
+const NEGATOR = "(?:not|n't|no|never|without|fails?\\s+to)";
+const POSITIVE_WORD = '(?:correct(?:ly)?|accurate(?:ly)?|match(?:es)?|address(?:es)?)';
+const NEGATIVE_WORD = '(?:incorrect(?:ly)?|inaccurate(?:ly)?|wrong|contradict(?:s)?|off-?topic)';
+
+const NEGATED_POSITIVE = new RegExp(`\\b${NEGATOR}\\b(?:\\s+\\S+){0,3}?\\s+${POSITIVE_WORD}\\b`, 'i');
+const NEGATED_NEGATIVE = new RegExp(`\\b${NEGATOR}\\b(?:\\s+\\S+){0,3}?\\s+${NEGATIVE_WORD}\\b`, 'i');
+const PLAIN_POSITIVE = new RegExp(`\\b${POSITIVE_WORD}\\b`, 'i');
+const PLAIN_NEGATIVE = new RegExp(`\\b${NEGATIVE_WORD}\\b`, 'i');
 
 function classify(reasoning) {
-  if (NEGATIVE_CUES.test(reasoning)) return false;
-  if (POSITIVE_CUES.test(reasoning)) return true;
+  // Check negated forms first — they override the plain (unnegated) reading of
+  // the same keyword, which is exactly the case that broke the naive version.
+  if (NEGATED_POSITIVE.test(reasoning)) return false;
+  if (NEGATED_NEGATIVE.test(reasoning)) return true;
+  if (PLAIN_NEGATIVE.test(reasoning)) return false;
+  if (PLAIN_POSITIVE.test(reasoning)) return true;
   return false;
 }
 
