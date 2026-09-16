@@ -1,0 +1,25 @@
+{
+  "name": "notequiz",
+  "version": "1.0.0",
+  "description": "Offline quiz generator that studies your own notes using Tether's QVAC on-device AI SDK.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "qvac",
+    "on-device-ai",
+    "offline-ai",
+    "quiz",
+    "study"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.17"
+  },
+  "dependencies": {
+    "@qvac/sdk": "^0.19.1"
+  }
+}
